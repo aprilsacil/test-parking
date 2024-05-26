@@ -3,19 +3,13 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2024 at 10:39 PM
+-- Generation Time: May 26, 2024 at 09:15 AM
 -- Server version: 5.7.43
 -- PHP Version: 7.4.33
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
 --
 -- Database: `parking`
@@ -52,7 +46,7 @@ CREATE TABLE `vehicle` (
   `vehicle_id` int(10) UNSIGNED NOT NULL,
   `vehicle_make` varchar(10) NOT NULL,
   `vehicle_body` varchar(10) NOT NULL,
-  `vehicle_color` varchar(10) NOT NULL,
+  `vehicle_color` varchar(10) DEFAULT NULL,
   `vehicle_plate_expiry` varchar(11) DEFAULT NULL,
   `vehicle_vin` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -84,16 +78,19 @@ ALTER TABLE `ticket`
   ADD KEY `ticket_location` (`ticket_location`),
   ADD KEY `ticket_issue_date` (`ticket_issue_datetime`),
   ADD KEY `ticket_agency` (`ticket_agency`),
-  ADD SPATIAL KEY `ticket_coordinates` (`ticket_coordinates`),
   ADD KEY `FK_ticketVehicle` (`vehicle_id`),
-  ADD KEY `FK_ticketViolation` (`violation_id`);
+  ADD KEY `FK_ticketViolation` (`violation_id`),
+  ADD SPATIAL KEY `ticket_coordinates` (`ticket_coordinates`);
 
 --
 -- Indexes for table `vehicle`
 --
 ALTER TABLE `vehicle`
   ADD PRIMARY KEY (`vehicle_id`),
-  ADD KEY `vehicle_make` (`vehicle_make`);
+  ADD KEY `vehicle_make` (`vehicle_make`),
+  ADD KEY `vehicle_make_body_color_plate_expiry` (`vehicle_make`,`vehicle_body`,`vehicle_color`,`vehicle_plate_expiry`) USING BTREE,
+  ADD KEY `vehicle_body` (`vehicle_body`),
+  ADD KEY `vehicle_color` (`vehicle_color`);
 
 --
 -- Indexes for table `violation`
@@ -102,7 +99,8 @@ ALTER TABLE `violation`
   ADD PRIMARY KEY (`violation_id`),
   ADD KEY `violation_code` (`violation_code`),
   ADD KEY `violation_description` (`violation_description`),
-  ADD KEY `violation_state` (`violation_state`);
+  ADD KEY `violation_state` (`violation_state`),
+  ADD KEY `violation_code_2` (`violation_code`,`violation_state`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -137,7 +135,3 @@ ALTER TABLE `ticket`
   ADD CONSTRAINT `FK_ticketVehicle` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicle` (`vehicle_id`),
   ADD CONSTRAINT `FK_ticketViolation` FOREIGN KEY (`violation_id`) REFERENCES `violation` (`violation_id`);
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
